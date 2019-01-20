@@ -13,13 +13,14 @@ strategies = ['nearest', 'safest', 'uncrowded']
 
 # Simulation configuration
 today = dt.date.today()
+timeHazard = dt.datetime(today.year, today.month, 1, 8, 30, 0, 0)
 
-timeHazard = "10:00:00"
+families = []
 
-
- #Only two are neccesary 
-
-families = [{'N': 4, 'child': 2, 'adult': 2}]
+family1 = {'N': 3, 'child': 1, 'adult': 2} #Only two are neccesary 
+family2 = {'N': 3, 'child': 2, 'adult': 1}
+#families.append(family1)
+#families.append(family2)
 
 sebaConfiguration = {'families': families, 'hazard': timeHazard}
 
@@ -27,55 +28,38 @@ sebaConfiguration = {'families': families, 'hazard': timeHazard}
 
 jsonsOccupants = []
 
-strategy = strategies[0]
+N = 1
 
-N = 8
-NDis = 2
+states = OrderedDict([('Leaving','out'), ('Resting', 'sofa'), ('Working in my laboratory', 'wp')])
 
-fov = True
+schedule = {'t1': "08:01:00", 't2': "08:10:00", 't3': "08:20:00"}
 
-speed = 1.38
-speedDis = 0.7
-
-states = OrderedDict([('Free time','out'), ('Rest', 'sofa'), ('Lunch','out'), ('Work', 'wp')])
-
-schedule = {'t1': "09:30:00", 't2': "13:20:00", 't3': "15:00:00", 't4': "18:00:00"}
-
-variation = {'t1': "00:30:00", 't2': "00:30:00", 't3': "00:30:00", 't4': "00:59:00"}
+variation = {'t1': "00:01:00", 't2': "00:01:00", 't3': "00:01:00"}
 
 markovActivity = {
-
-    '-t1': [[100, 0, 0, 0], [100, 0, 0, 0], [100, 0, 0, 0], [100, 0, 0, 0]],
-    't1-t2': [[0, 30, 0, 70], [0, 10, 0, 90], [0, 20, 0, 80], [0, 40, 0, 60]],
-    't2-t3': [[100, 0, 0, 0], [0, 10, 20, 60], [20, 10, 50, 40], [0, 10, 70, 30]],
-    't3-t4': [[100, 0, 0, 0], [0, 10, 20, 60], [0, 10, 0, 70], [20, 10, 0, 70]],
-    't4-': [[100, 0, 0, 0], [70, 0, 0, 30], [70, 0, 0, 30], [70, 0, 0, 30]]
-
+    '-t1': [[100, 0, 0], [0, 0, 0], [0, 0, 0]],
+    't1-t2': [[0, 0, 100], [0, 50, 50], [0, 50, 50]],
+    't2-t3': [[100, 0, 0], [0, 50, 50], [0, 50, 50]],
+    't3-': [[0, 0, 100], [0, 100, 0], [0, 100, 0]]
 }
 
 timeActivity = {
-    '-t1': [3, 0, 0, 0], 't1-t2': [0, 10, 0, 45], 't2-t3': [0, 10, 50, 45], 't3-t4': [0, 10, 20, 45], 't4-': [3, 10, 10, 20]
+    '-t1': [3, 0, 0], 't1-t2': [3, 3, 3], 't2-t3': [3, 3, 3], 't3-': [3, 3, 3]
 }
 
 
 timeActivityVariation = {
-    '-t1': [0, 0, 0, 0], 't1-t2': [0, 5, 0, 10], 't2-t3': [0, 5, 10, 10], 't3-t4': [0, 10, 5, 10], 't4-': [0, 5, 5, 10]
+    '-t1': [1, 0, 0], 't1-t2': [1, 1, 1], 't2-t3': [1, 1, 1], 't3-': [1, 1, 1]
 }
 
-jsonOccupant = {'type': 'regular' , 'N': N, 'states': states , 'schedule': schedule, 'variation': variation,
+jsonOccupant = {'type': 'example' , 'N': N, 'states': states , 'schedule': schedule, 'variation': variation,
 'markovActivity': markovActivity, 'timeActivity': timeActivity, 'timeActivityVariation': timeActivityVariation,
-'strategy': strategy, 'speedEmergency': speed, 'shape': 'rect', 'fov': fov}
+'strategy': 'q_learning'} # estaba 'nearest'
 
 jsonsOccupants.append(jsonOccupant)
 
-jsonOccupantDis = {'type': 'dis' , 'N': NDis, 'states': states , 'schedule': schedule, 'variation': variation,
-'markovActivity': markovActivity, 'timeActivity': timeActivity, 'timeActivityVariation': timeActivityVariation,
-'strategy': strategy, 'speedEmergency': speedDis, 'fov': fov}
-
-jsonsOccupants.append(jsonOccupantDis)
-
 with open('auxiliarFiles/labgsi.blueprint3d') as data_file:
-	jsonMap = ramen.returnMap(data_file, offsety = 9, offsetx = 0)
+	jsonMap = ramen.returnMap(data_file)
 
 cellW = 20
 cellH = 20

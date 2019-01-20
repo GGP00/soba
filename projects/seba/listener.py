@@ -4,6 +4,7 @@ from tornado import httpserver
 from tornado.ioloop import IOLoop
 import tornado.web
 
+
 """
 
     In this file, the API is defined to obtain information about the simulation and control of avatars.
@@ -49,7 +50,7 @@ class exit_way_avatar(tornado.web.RequestHandler):
 class fire_in_fov(tornado.web.RequestHandler):
     def get(self, avatar_id):
         global model
-        data = model.fire_in_fov(avatar_id)
+        data = model.fire_in_pov(avatar_id)
         response = json.dumps(data)
         self.write(response)
 
@@ -67,23 +68,13 @@ class create_avatar(tornado.web.RequestHandler):
         response = json.dumps(data)
         self.write(response)
 
-    def get(self, occupant_id):
-        global model
-        data = model.info_occupant(occupant_id)
-        response = json.dumps(data)
-        self.write(response)
-
 def setModel(modelAux):
     global model
     ltnr.model = modelAux
     model = modelAux
     ltnr.externalHandlers = [
-        (r"/api/v1/fire?", positions_fire),
-        (r"/api/v1/occupants/([0-9]+)/route/([0-9]+)?", exit_way_avatar),
-        (r"/api/v1/occupants/([0-9]+)/fire?", fire_in_fov),
-        (r"/api/v1/occupants/([0-9]+)?", create_avatar)
+        (r"/api/seba/v1/fire?", positions_fire),
+        (r"/api/seba/v1/occupants/([0-9]+)/route/([0-9]+)?", exit_way_avatar),
+        (r"/api/seba/v1/occupants/([0-9]+)/fire?", fire_in_fov),
+        (r"/api/seba/v1/occupants/([0-9]+)?", create_avatar)
     ]
-
-def getModel():
-    global model
-    return model

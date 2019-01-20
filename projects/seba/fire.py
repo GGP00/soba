@@ -2,7 +2,6 @@ import random
 import sys
 from mesa.agent import Agent
 import soba.agents.resources.aStar as aStar
-import random
 
 class Fire():
     """
@@ -37,19 +36,18 @@ class FireControl(Agent):
         step: Method invoked by the Model scheduler in each step. 
     
     """
-    def __init__(self, unique_id, model, posInit, expansionRate = 0.7, growthRate = 0.7):
+    def __init__(self, unique_id, model, posInit, expansionRate = 1, growthRate = 1):
         super().__init__(unique_id, model)
         self.model.schedule.add(self)
         self.fireExpansion = []
-        self.firePositions = []
         self.limitFire = []
         self.expansionRate = expansionRate #m/s
         self.growthRate = growthRate
         self.N = 0
-        self.fireMovements = []
-        self.costMovement = round(0.5/(self.expansionRate*self.model.clock.timeByStep))
-        self.costGrowth =  round(0.5/(self.growthRate*self.model.clock.timeByStep))
-        self.focalPoint = self.createFirePos(posInit)
+        self.movements = []
+        self.costMovement = 0.5*(1/self.expansionRate)*(1/self.model.clock.timeByStep)
+        self.costGrowth = 0.5*(1/self.growthRate)*(1/self.model.clock.timeByStep)
+        self.createFirePos(posInit)
 
     def createFirePos(self, pos):
         """
@@ -60,8 +58,7 @@ class FireControl(Agent):
         f = Fire(self.model, pos)
         self.limitFire.append(f)
         self.fireExpansion.append(f)
-        self.fireMovements.append(pos)
-        return f
+        self.movements.append(pos)
 
     def getFirePos(self, pos):
         """
@@ -101,7 +98,7 @@ class FireControl(Agent):
                             if ((cellPos in doorsPos) and (posAux in doorsPos)):
                                 move = True
                     if move:
-                        if not (pos in self.fireMovements):
+                        if not (pos in self.movements):
                             self.createFirePos(pos)
 
     def growthFire(self):
@@ -119,9 +116,9 @@ class FireControl(Agent):
             self.costGrowth = self.costGrowth - 1
         else:
             self.growthFire()
-            self.costGrowth = round(0.5/(self.growthRate*self.model.clock.timeByStep))
+            self.costGrowth = 0.5*(1/self.growthRate)*(1/self.model.clock.timeByStep)
         if self.costMovement > 0:
             self.costMovement = self.costMovement - 1
         else:
             self.expansionFire()
-            self.costMovement = round(0.5/(self.expansionRate*self.model.clock.timeByStep))
+            self.costMovement = 0.5*(1/self.expansionRate)*(1/self.model.clock.timeByStep)
